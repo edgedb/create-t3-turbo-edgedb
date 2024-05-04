@@ -1,14 +1,10 @@
-# create-t3-turbo
+# create-edb-turbo
 
-> **Note**
-> Due to high demand, this repo now uses the `app` directory with some new experimental features. If you want to use the more traditional `pages` router, [check out the repo before the update](https://github.com/t3-oss/create-t3-turbo/tree/414aff131ca124573e721f3779df3edb64989fd4).
-
-> **Note**
-> OAuth deployments are now working for preview deployments. Read [deployment guide](https://github.com/t3-oss/create-t3-turbo#auth-proxy) and [check out the source](./apps/auth-proxy) to learn more!
+A fork of the `create-t3-turbo` app starter that uses EdgeDB and EdgeDB Auth.
 
 ## Installation
 
-There are two ways of initializing an app using the `create-t3-turbo` starter. You can either use this repository as a template:
+There are two ways of initializing an app using the `create-edb-turbo` starter. You can either use this repository as a template:
 
 ![use-as-template](https://github.com/t3-oss/create-t3-turbo/assets/51714798/bb6c2e5d-d8b6-416e-aeb3-b3e50e2ca994)
 
@@ -49,9 +45,9 @@ packages
   ├─ api
   |   └─ tRPC v11 router definition
   ├─ auth
-  |   └─ Authentication using next-auth. **NOTE: Only for Next.js app, not Expo**
+  |   └─ Authentication using EdgeDB Auth
   ├─ db
-  |   └─ Typesafe db calls using Drizzle & Planetscale
+  |   └─ Typesafe fast db calls using EdgeDB
   └─ ui
       └─ Start of a UI package for the webapp using shadcn-ui
 tooling
@@ -69,9 +65,6 @@ tooling
 
 ## Quick Start
 
-> **Note**
-> The [db](./packages/db) package is preconfigured to use PlanetScale and is **edge-bound** with the [database.js](https://github.com/planetscale/database-js) driver. If you're using something else, make the necessary modifications to the [schema](./packages/db/src/schema) as well as the [client](./packages/db/src/index.ts) and the [drizzle config](./packages/db/drizzle.config.ts). If you want to switch to non-edge database driver, remove `export const runtime = "edge";` [from all pages and api routes](https://github.com/t3-oss/create-t3-turbo/issues/634#issuecomment-1730240214).
-
 To get it running, follow the steps below:
 
 ### 1. Setup dependencies
@@ -84,8 +77,8 @@ pnpm i
 # There is an `.env.example` in the root directory you can use for reference
 cp .env.example .env
 
-# Push the Drizzle schema to the database
-pnpm db:push
+# Initialize EdgeDB project (will install the CLI if not already installed)
+pnpm dlx edgedb project init
 ```
 
 ### 2. Configure Expo `dev`-script
@@ -138,14 +131,6 @@ No. Solito will not be included in this repo. It is a great tool if you want to 
 
 Integrating Solito into this repo isn't hard, and there are a few [official templates](https://github.com/nandorojo/solito/tree/master/example-monorepos) by the creators of Solito that you can use as a reference.
 
-### What auth solution should I use instead of Next-Auth.js for Expo?
-
-I've left this kind of open for you to decide. Some options are [Clerk](https://clerk.dev), [Supabase Auth](https://supabase.com/docs/guides/auth), [Firebase Auth](https://firebase.google.com/docs/auth/) or [Auth0](https://auth0.com/docs). Note that if you're dropping the Expo app for something more "browser-like", you can still use Next-Auth.js for those. [See an example in a Plasmo Chrome Extension here](https://github.com/t3-oss/create-t3-turbo/tree/chrome/apps/chrome).
-
-The Clerk.dev team even made an [official template repository](https://github.com/clerkinc/t3-turbo-and-clerk) integrating Clerk.dev with this repo.
-
-During Launch Week 7, Supabase [announced their fork](https://supabase.com/blog/launch-week-7-community-highlights#t3-turbo-x-supabase) of this repo integrating it with their newly announced auth improvements. You can check it out [here](https://github.com/supabase-community/create-t3-turbo).
-
 ### Does this pattern leak backend code to my client applications?
 
 No, it does not. The `api` package should only be a production dependency in the Next.js application where it's served. The Expo app, and all other apps you may add in the future, should only add the `api` package as a dev dependency. This lets you have full typesafety in your client applications, while keeping your backend code safe.
@@ -167,20 +152,9 @@ Let's deploy the Next.js application to [Vercel](https://vercel.com). If you've 
 
 1. Create a new project on Vercel, select the `apps/nextjs` folder as the root directory. Vercel's zero-config system should handle all configurations for you.
 
-2. Add your `DATABASE_URL` environment variable.
+2. Add your `EDGEDB_SECRET_KEY` and `EDGEDB_INSTANCE` environment variable.
 
 3. Done! Your app should successfully deploy. Assign your domain and use that instead of `localhost` for the `url` in the Expo app so that your Expo app can communicate with your backend when you are not in development.
-
-### Auth Proxy
-
-The auth proxy is a Nitro server that proxies OAuth requests in preview deployments. This is required for the Next.js app to be able to authenticate users in preview deployments. The auth proxy is not used for OAuth requests in production deployments. To get it running, it's easiest to use Vercel Edge functions. See the [Nitro docs](https://nitro.unjs.io/deploy/providers/vercel#vercel-edge-functions) for how to deploy Nitro to Vercel.
-
-Then, there are some environment variables you need to set in order to get OAuth working:
-
-- For the Next.js app, set `AUTH_REDIRECT_PROXY_URL` to the URL of the auth proxy.
-- For the auth proxy server, set `AUTH_REDIRECT_PROXY_URL` to the same as above, as well as `AUTH_DISCORD_ID`, `AUTH_DISCORD_SECRET` (or the equivalent for your OAuth provider(s)). Lastly, set `AUTH_SECRET` **to the same value as in the Next.js app** for preview environments.
-
-Read more about the setup in [the auth proxy README](./apps/auth-proxy/README.md).
 
 ### Expo
 

@@ -1,14 +1,5 @@
-import { Client } from "@planetscale/database";
-import { drizzle } from "drizzle-orm/planetscale-serverless";
+import { createClient } from "edgedb";
 
-import { connectionStr } from "./config";
-import * as auth from "./schema/auth";
-import * as post from "./schema/post";
+export { default as e } from "../dbschema/edgeql-js";
 
-export * from "drizzle-orm/sql";
-export { alias } from "drizzle-orm/mysql-core";
-
-export const schema = { ...auth, ...post };
-
-const psClient = new Client({ url: connectionStr.href });
-export const db = drizzle(psClient, { schema });
+export const client = createClient();

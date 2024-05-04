@@ -16,25 +16,23 @@
     "clean": "rm -rf .turbo node_modules",
     "format": "prettier --check . --ignore-path ../../.gitignore",
     "lint": "eslint",
-    "push": "pnpm with-env drizzle-kit push:mysql --config src/config.ts",
-    "studio": "pnpm with-env drizzle-kit studio --config src/config.ts",
+    "generate": "$npm_execpath with-env $npm_execpath dlx @edgedb/generate edgeql-js --target ts",
+    "studio": "$npm_execpath with-env edgedb ui",
     "typecheck": "tsc --noEmit --emitDeclarationOnly false",
     "with-env": "dotenv -e ../../.env --"
   },
   "dependencies": {
-    "@planetscale/database": "^1.16.0",
     "@t3-oss/env-core": "^0.10.1",
-    "drizzle-orm": "^0.30.4",
+    "edgedb": "^1.5.5",
     "zod": "^3.23.0"
   },
   "devDependencies": {
+    "@edgedb/generate": "^0.5.3",
     "@acme/eslint-config": "workspace:*",
     "@acme/prettier-config": "workspace:*",
     "@acme/tsconfig": "workspace:*",
     "dotenv-cli": "^7.4.1",
-    "drizzle-kit": "^0.20.14",
     "eslint": "^9.0.0",
-    "mysql2": "^3.9.7",
     "prettier": "^3.2.5",
     "typescript": "^5.4.5"
   },

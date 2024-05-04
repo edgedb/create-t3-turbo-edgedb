@@ -13,8 +13,7 @@ const createContext = cache(async () => {
   heads.set("x-trpc-source", "rsc");
 
   return createTRPCContext({
-    session: await auth(),
-    headers: heads,
+    session: auth.getSession(),
   });
 });
 

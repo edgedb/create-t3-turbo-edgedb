@@ -86,11 +86,10 @@ export function PostList(props: {
 }) {
   // TODO: Make `useSuspenseQuery` work without having to pass a promise from RSC
   const initialData = use(props.posts);
-  const { data: posts } = api.post.all.useQuery(undefined, {
+  const posts = api.post.all.useQuery(undefined, {
     initialData,
   });
-
-  if (posts.length === 0) {
+  if (posts.data.length === 0) {
     return (
       <div className="relative flex w-full flex-col gap-4">
         <PostCardSkeleton pulse={false} />
@@ -106,7 +105,7 @@ export function PostList(props: {
 
   return (
     <div className="flex w-full flex-col gap-4">
-      {posts.map((p) => {
+      {posts.data.map((p) => {
         return <PostCard key={p.id} post={p} />;
       })}
     </div>
@@ -140,7 +139,7 @@ export function PostCard(props: {
         <Button
           variant="ghost"
           className="cursor-pointer text-sm font-bold uppercase text-primary hover:bg-transparent hover:text-white"
-          onClick={() => deletePost.mutate(props.post.id)}
+          onClick={() => deletePost.mutate({ id: props.post.id })}
         >
           Delete
         </Button>

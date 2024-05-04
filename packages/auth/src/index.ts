@@ -1,14 +1,30 @@
-import NextAuth from "next-auth";
+import { redirect } from "next/navigation";
+import createAuth, { NextAuthSession } from "@edgedb/auth-nextjs/app";
 
-import { authConfig } from "./config";
+import { client } from "@acme/db";
 
-export type { Session } from "next-auth";
+import { config } from "./config";
 
-const {
-  handlers: { GET, POST },
-  auth,
-  signIn,
-  signOut,
-} = NextAuth(authConfig);
+export const auth = createAuth(client, config);
 
-export { GET, POST, auth, signIn, signOut };
+export const { GET, POST } = auth.createAuthRouteHandlers({
+  onMagicLinkCallback: async (params) => {
+    if (params.isSignUp) {
+      await client.query(
+        `
+        with identity := (
+          select ext::auth::Identity filter .id = <uuid>$identityId
+        ),
+        insert User {
+          identities := identity,
+        };
+      `,
+        { identityId: params.tokenData.identity_id },
+      );
+    }
+
+    redirect("/");
+  },
+});
+
+export { NextAuthSession };
